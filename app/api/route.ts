@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { pool } from '../../PHTRS/config/database';
+import { pool } from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 // 获取所有坑洞信息（包括相关的维修和损坏报告）
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
         if (potholeId) {
             // 获取单个坑洞的详细信息
-            const [pothole] = await connection.query(`
+            const [pothole] = (await connection.query(`
                 SELECT 
                     p.*,
                     w.WorkOrderID,
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
                 LEFT JOIN Damage d ON p.PotholeID = d.PotholeID
                 WHERE p.PotholeID = ?
                 GROUP BY p.PotholeID
-            `, [potholeId]) as [RowDataPacket[]];
+            `, [potholeId])) as unknown as [RowDataPacket[]];
 
             return NextResponse.json({
                 success: true,
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         }
 
         // 获取所有坑洞的列表
-        const [rows] = await connection.query(`
+        const [rows] = (await connection.query(`
             SELECT 
                 p.*,
                 (
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
             LEFT JOIN Damage d ON p.PotholeID = d.PotholeID
             GROUP BY p.PotholeID
             ORDER BY p.RepairPriority DESC, p.ReportDate DESC
-        `) as [RowDataPacket[]];
+        `)) as unknown as [RowDataPacket[]];
 
         return NextResponse.json({
             success: true,
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
         console.log('repairPriority', repairPriority);
 
         // 插入坑洞记录
-        const [result] = await connection.query(`
+        const [result] = (await connection.query(`
             INSERT INTO Pothole (
                 StreetAddress,
                 Size,
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
                 RepairPriority,
                 ReportDate
             ) VALUES (?, ?, ?, ?, ?, NOW())
-        `, [streetAddress, size, location, district, repairPriority]) as [ResultSetHeader];
+        `, [streetAddress, size, location, district, repairPriority])) as unknown as [ResultSetHeader];
 
         const potholeId = result.insertId;
 
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
         await connection.commit();
 
         // 获取新创建的坑洞完整信息
-        const [newPothole] = await connection.query(`
+        const [newPothole] = (await connection.query(`
             SELECT 
                 p.*,
                 d.DamageID,
@@ -160,7 +160,7 @@ export async function POST(request: Request) {
             FROM Pothole p
             LEFT JOIN Damage d ON p.PotholeID = d.PotholeID
             WHERE p.PotholeID = ?
-        `, [potholeId]) as [RowDataPacket[]];
+        `, [potholeId])) as unknown as [RowDataPacket[]];
 
         console.log('newPothole', newPothole);
 

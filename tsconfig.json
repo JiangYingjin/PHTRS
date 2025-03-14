@@ -5,9 +5,9 @@
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
@@ -22,9 +22,9 @@
       }
     ],
     "types": [
-      "node"
+      "node",
     ],
-    "target": "ES2017",
+    "target": "ESNext",
     "baseUrl": ".",
     "paths": {
       "@/*": [

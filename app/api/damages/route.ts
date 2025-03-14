@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/app/PHTRS/config/database';
+import { pool } from '@/app/config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 export async function POST(request: Request) {

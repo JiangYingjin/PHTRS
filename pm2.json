@@ -1,0 +1,7 @@
+{
+  "name": "phtrs",
+  "cwd": "/root/proj/phtrs/build",
+  "script": "pnpm start",
+  "output": "../next.log",
+  "error": "../next.log"
+}

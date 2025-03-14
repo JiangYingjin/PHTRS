@@ -41,7 +41,7 @@ export function DamageReportsPage() {
 
   const fetchDamageReports = async () => {
     try {
-      const response = await fetch('/api/PHTRS/statistics?type=damages');
+      const response = await fetch('/api/statistics?type=damages');
       const data = await response.json();
       if (data.success) {
         setDamageReports(data.data);
@@ -53,10 +53,10 @@ export function DamageReportsPage() {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/PHTRS', {
+      const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,7 +103,7 @@ export function DamageReportsPage() {
               <TableColumn>STATUS</TableColumn>
             </TableHeader>
             <TableBody>
-              {damageReports.map((report) => (
+              {damageReports.map((report: any) => (
                 <TableRow key={report.DamageID}>
                   <TableCell>
                     <div>

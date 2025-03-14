@@ -1,0 +1,8 @@
+on: push
+jobs:
+  build:
+    runs-on: host
+    steps:
+      - run: |
+          cd /root/proj/phtrs
+          # pnpm d

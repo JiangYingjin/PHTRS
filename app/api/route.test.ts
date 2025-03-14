@@ -1,12 +1,12 @@
 import { expect, test, describe, vi, beforeEach, afterEach } from 'vitest';
 import { POST } from './route';
 import { NextResponse } from 'next/server';
-import { pool } from '../../PHTRS/config/database';
+import { pool } from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
-describe('POST /api/PHTRS', () => {
+describe('POST /api', () => {
     // 模拟数据库连接和查询
     const mockConnection = {
         beginTransaction: vi.fn(),
@@ -27,7 +27,7 @@ describe('POST /api/PHTRS', () => {
 
     // 路径1：缺少必填字段
     test('Path 1: should return 400 when required fields are missing', async () => {
-        const req = new Request(`${BASE_URL}/api/PHTRS`, {
+        const req = new Request(`${BASE_URL}/api`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({})
@@ -47,7 +47,7 @@ describe('POST /api/PHTRS', () => {
 
     // 路径2：尺寸超出范围
     test('Path 2: should return 400 when size is out of range', async () => {
-        const req = new Request(`${BASE_URL}/api/PHTRS`, {
+        const req = new Request(`${BASE_URL}/api`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -81,7 +81,7 @@ describe('POST /api/PHTRS', () => {
                 DamageID: null
             }]]);
 
-        const req = new Request(`${BASE_URL}/api/PHTRS`, {
+        const req = new Request(`${BASE_URL}/api`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -114,7 +114,7 @@ describe('POST /api/PHTRS', () => {
                 CitizenName: 'John Doe'
             }]]);
 
-        const req = new Request(`${BASE_URL}/api/PHTRS`, {
+        const req = new Request(`${BASE_URL}/api`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -144,7 +144,7 @@ describe('POST /api/PHTRS', () => {
     test('Path 5: should handle transaction rollback', async () => {
         mockConnection.query.mockRejectedValueOnce(new Error('Database error'));
 
-        const req = new Request(`${BASE_URL}/api/PHTRS`, {
+        const req = new Request(`${BASE_URL}/api`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -179,7 +179,7 @@ describe('POST /api/PHTRS', () => {
                 RepairPriority: 10
             }]]);
 
-        const req = new Request(`${BASE_URL}/api/PHTRS`, {
+        const req = new Request(`${BASE_URL}/api`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

@@ -33,7 +33,7 @@ export function WorkOrdersPage() {
 
   const fetchWorkOrders = async () => {
     try {
-      const response = await fetch('/api/PHTRS/statistics?type=workorders');
+      const response = await fetch('/api/statistics?type=workorders');
       const data = await response.json();
       if (data.success) {
         setWorkOrders(data.data);
@@ -45,7 +45,7 @@ export function WorkOrdersPage() {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'Repaired': return 'success';
       case 'In Progress': return 'warning';
@@ -54,7 +54,7 @@ export function WorkOrdersPage() {
     }
   };
 
-  const handleCreateWorkOrder = (pothole) => {
+  const handleCreateWorkOrder = (pothole: any) => {
     setSelectedPothole(pothole);
     onOpen();
   };
@@ -76,7 +76,7 @@ export function WorkOrdersPage() {
               <TableColumn>ACTIONS</TableColumn>
             </TableHeader>
             <TableBody>
-              {workOrders.map((order) => (
+              {workOrders.map((order: any) => (
                 <TableRow key={order.WorkOrderID}>
                   <TableCell>{order.PotholeID}</TableCell>
                   <TableCell>
@@ -144,6 +144,7 @@ export function WorkOrdersPage() {
         isOpen={isOpen}
         onClose={onClose}
         pothole={selectedPothole}
+        crews={[]}
         onSubmit={fetchWorkOrders}
       />
     </div>

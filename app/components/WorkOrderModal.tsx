@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Modal,
   ModalContent,
@@ -18,6 +18,12 @@ export function WorkOrderModal({
   pothole,
   crews = [],
   onSubmit
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  pothole: any;
+  crews: any[];
+  onSubmit: (data: any) => void;
 }) {
   const [formData, setFormData] = useState({
     crewId: '',
@@ -29,7 +35,7 @@ export function WorkOrderModal({
     repairCost: '0'
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSubmit({
       potholeId: pothole.PotholeID,
@@ -41,9 +47,9 @@ export function WorkOrderModal({
     });
   };
 
-  const calculateRepairCost = async () => {
+  const calculateRepairCost = useCallback(async () => {
     try {
-      const response = await fetch('/api/PHTRS/statistics', {
+      const response = await fetch('/api/statistics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -62,7 +68,7 @@ export function WorkOrderModal({
     } catch (error) {
       console.error('Error calculating repair cost:', error);
     }
-  };
+  }, [formData.hoursApplied, formData.numberOfPeople, formData.fillerMaterialUsed]);
 
   useEffect(() => {
     if (formData.hoursApplied !== '0' &&
@@ -70,7 +76,7 @@ export function WorkOrderModal({
       formData.fillerMaterialUsed !== '0') {
       calculateRepairCost();
     }
-  }, [formData.hoursApplied, formData.numberOfPeople, formData.fillerMaterialUsed]);
+  }, [formData.hoursApplied, formData.numberOfPeople, formData.fillerMaterialUsed, calculateRepairCost]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
@@ -90,7 +96,7 @@ export function WorkOrderModal({
                   crewId: e.target.value
                 })}
               >
-                {Array.isArray(crews) && crews.map(crew => (
+                {crews.map((crew: any) => (
                   <SelectItem key={crew.CrewID} value={crew.CrewID}>
                     {crew.CrewName}
                   </SelectItem>

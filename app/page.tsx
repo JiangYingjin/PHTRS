@@ -48,12 +48,31 @@ import { WorkOrderModal } from './components/WorkOrderModal';
 import { WorkOrdersPage } from './components/WorkOrdersPage';
 import { DamageReportsPage } from './components/DamageReportsPage';
 
+interface OverallStats {
+  total_potholes: number;
+  in_progress_count: number;
+  repaired_count: number;
+  total_damage_amount: number;
+}
+
+interface DistrictStats {
+  District: string;
+  pothole_count: number;
+  work_orders: number;
+  total_repair_cost: number;
+}
+
+interface Stats {
+  overall: OverallStats;
+  byDistrict: DistrictStats[];
+}
+
 export default function PHTRS() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activeTab, setActiveTab] = useState('report');
   const [loading, setLoading] = useState(false);
   const [potholes, setPotholes] = useState([]);
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [formData, setFormData] = useState({
     streetAddress: '',
     size: '1',
@@ -71,7 +90,7 @@ export default function PHTRS() {
   // 获取坑洞列表
   const fetchPotholes = async () => {
     try {
-      const response = await fetch('/api/PHTRS');
+      const response = await fetch('/api');
       const data = await response.json();
       if (data.success) {
         setPotholes(data.data);
@@ -84,7 +103,7 @@ export default function PHTRS() {
   // 获取统计数据
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/PHTRS', {
+      const response = await fetch('/api', {
         method: 'OPTIONS'
       });
       const data = await response.json();
@@ -114,7 +133,7 @@ export default function PHTRS() {
         } : null
       };
 
-      const response = await fetch('/api/PHTRS', {
+      const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData)
@@ -204,9 +223,9 @@ export default function PHTRS() {
               />
               <StatCard
                 title="Total Damage Cost"
-                value={`$${typeof stats?.overall?.total_damage_amount === 'number'
-                  ? stats.overall.total_damage_amount.toFixed(2)
-                  : '0.00'}`}
+                value={typeof stats?.overall?.total_damage_amount === 'number'
+                  ? stats.overall.total_damage_amount
+                  : 0}
                 icon={<ExclamationTriangleIcon className="h-6 w-6 text-red-500" />}
               />
             </div>
@@ -250,7 +269,7 @@ export default function PHTRS() {
                       <TableColumn>COST</TableColumn>
                     </TableHeader>
                     <TableBody>
-                      {stats?.byDistrict?.map((district) => (
+                      {(stats?.byDistrict || []).map((district) => (
                         <TableRow key={district.District}>
                           <TableCell>{district.District}</TableCell>
                           <TableCell>{district.pothole_count}</TableCell>
@@ -279,7 +298,7 @@ export default function PHTRS() {
             }
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {potholes.map((pothole) => (
+              {potholes.map((pothole: any) => (
                 <PotholeCard
                   key={pothole.PotholeID}
                   pothole={pothole}
@@ -447,7 +466,7 @@ export default function PHTRS() {
 }
 
 // 统计卡片组件
-function StatCard({ title, value, icon }) {
+function StatCard({ title, value, icon }: { title: string, value: number, icon: React.ReactNode }) {
   return (
     <Card>
       <CardBody>
@@ -466,7 +485,7 @@ function StatCard({ title, value, icon }) {
 }
 
 // 坑洞卡片组件
-function PotholeCard({ pothole, onStatusUpdate }) {
+function PotholeCard({ pothole, onStatusUpdate }: { pothole: any, onStatusUpdate: () => void }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [crews, setCrews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -475,7 +494,7 @@ function PotholeCard({ pothole, onStatusUpdate }) {
     // 获取维修队伍列表
     const fetchCrews = async () => {
       try {
-        const response = await fetch('/api/PHTRS/crews');
+        const response = await fetch('/api/crews');
         const data = await response.json();
         if (data.success) {
           setCrews(data.data);
@@ -487,10 +506,10 @@ function PotholeCard({ pothole, onStatusUpdate }) {
     fetchCrews();
   }, []);
 
-  const handleWorkOrder = async (workOrderData) => {
+  const handleWorkOrder = async (workOrderData: any) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/PHTRS', {
+      const response = await fetch('/api', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(workOrderData)
@@ -506,7 +525,7 @@ function PotholeCard({ pothole, onStatusUpdate }) {
     setLoading(false);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'Repaired': return 'success';
       case 'In Progress': return 'warning';
